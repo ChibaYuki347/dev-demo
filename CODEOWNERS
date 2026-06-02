@@ -1,0 +1,15 @@
+# CODEOWNERS — auto-request review for path patterns
+# Format: <pattern> <owner1> <owner2>
+# Replace @your-org/* placeholders with real GitHub teams before adopting.
+
+*                              @your-org/dev-leads
+
+# Demo subsystems
+/app/frontend/                 @your-org/frontend
+/app/functions/                @your-org/backend
+/infra/bicep/                  @your-org/platform
+/.github/workflows/            @your-org/platform @your-org/dev-leads
+/specs/                        @your-org/product @your-org/dev-leads
+/docs/                         @your-org/dev-leads
+/.github/copilot-instructions.md @your-org/dev-leads
+/AGENTS.md                     @your-org/dev-leads

@@ -1,0 +1,12 @@
+{
+  "_comment": "Copy to local.settings.json (gitignored) when running `func start` locally. Do not commit real values.",
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "python",
+
+    "_comment_servicebus": "Managed Identity connection. The trigger's `connection=` parameter is the prefix of this setting key.",
+    "ServiceBusConnection__fullyQualifiedNamespace": "sb-etl-dev.servicebus.windows.net",
+    "ServiceBusConnection__credential": "managedidentity"
+  }
+}

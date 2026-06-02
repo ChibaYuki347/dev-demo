@@ -1,0 +1,57 @@
+# Node
+node_modules/
+.npm/
+.yarn/
+*.log
+.pnpm-debug.log*
+
+# Playwright
+playwright-report/
+blob-report/
+test-results/
+.last-run.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Azure Functions
+local.settings.json
+.python_packages/
+bin/
+obj/
+
+# Bicep
+*.compiled.json
+
+# Build outputs
+dist/
+build/
+out/
+.vite/
+
+# IDE
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Secrets
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+*.pfx
+!**/*.key.example
+!**/*.json.example
+
+# Demo artifacts
+*.local

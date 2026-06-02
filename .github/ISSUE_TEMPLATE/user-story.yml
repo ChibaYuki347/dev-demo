@@ -1,0 +1,74 @@
+name: User Story (spec-driven)
+description: A user story written so AI agents can implement it. Mirrors an Azure Boards Work Item.
+title: "[Story] "
+labels: ["user-story", "spec-driven"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > **Tip**: link this Issue to its Azure Boards Work Item by writing `AB#<id>` in the body below.
+        > See [docs/03-spec-driven-dev.md](../../docs/03-spec-driven-dev.md) for the full flow.
+
+  - type: input
+    id: ab_id
+    attributes:
+      label: Azure Boards Work Item ID
+      description: Numeric ID. Will be expanded into `AB#<id>` for state transitions.
+      placeholder: "1234"
+    validations:
+      required: false
+
+  - type: textarea
+    id: story
+    attributes:
+      label: User Story
+      description: |
+        ```
+        As a <role>
+        I want <capability>
+        So that <benefit>
+        ```
+      value: |
+        As a
+        I want
+        So that
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria (Gherkin)
+      description: |
+        Write 1 scenario per `AC-NNN`. Each AC will map to one Playwright `test()` block.
+      value: |
+        **AC-001**: <one-line summary>
+        - **Given** ...
+        - **When** ...
+        - **Then** ...
+
+        **AC-002**: <one-line summary>
+        - **Given** ...
+        - **When** ...
+        - **Then** ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Implementation notes / NEEDS CLARIFICATION
+      description: "Mark open questions with `[NEEDS CLARIFICATION: ...]` so AI agents do not guess."
+      placeholder: |
+        - [NEEDS CLARIFICATION: should we support social login?]
+
+  - type: checkboxes
+    id: definition_of_done
+    attributes:
+      label: Definition of Done
+      options:
+        - label: Playwright E2E test added for every AC-NNN
+        - label: Unit tests cover the new business logic
+        - label: "`.github/copilot-instructions.md` updated if conventions changed"
+        - label: "`specs/<feature>/spec.md` regenerated and committed"
+        - label: "PR body links the Work Item via `Fixes AB#<id>`"

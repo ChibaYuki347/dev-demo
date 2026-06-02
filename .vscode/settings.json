@@ -1,0 +1,13 @@
+{
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": { "source.organizeImports": "explicit" },
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "[python]": { "editor.tabSize": 4 },
+  "[bicep]": { "editor.tabSize": 2 },
+  "playwright.reuseBrowser": true,
+  "playwright.showTrace": true,
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+  "chat.mcp.discovery.enabled": true
+}
