@@ -90,7 +90,10 @@ jobs:
           ado_new_state: ${{ vars.ADO_NEW_STATE || 'New' }}
           ado_active_state: ${{ vars.ADO_ACTIVE_STATE || 'Committed' }}
           ado_close_state: ${{ vars.ADO_CLOSE_STATE || 'Done' }}
-          ado_bypassrules: 'true'
+          # The Entra App is a project Contributor, not collection admin, so
+          # it cannot bypass workflow rules. Leave bypass off and rely on the
+          # process defaults.
+          ado_bypassrules: 'false'
 
   # ── Manual re-sync path: workflow_dispatch with an explicit issue #
   manual-sync:
