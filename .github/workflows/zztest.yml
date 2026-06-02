@@ -6,7 +6,3 @@ jobs:
     uses: ./.github/workflows/deploy-function-app.yml
     with:
       environment: development
-      function-app-name: devdemo-func-dev
-      resource-group: devdemo-rg-dev
-      dry_run: true
-    secrets: inherit

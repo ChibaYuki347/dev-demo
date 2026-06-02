@@ -6,19 +6,10 @@ on:
       environment:
         required: true
         type: string
-      function-app-name:
-        required: true
-        type: string
-      resource-group:
-        required: true
-        type: string
-      dry_run:
-        required: false
-        type: boolean
-        default: true
 
 jobs:
   hi:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     steps:
-      - run: echo "env=${{ inputs.environment }} app=${{ inputs.function-app-name }}"
+      - run: echo "env=${{ inputs.environment }}"
