@@ -21,7 +21,7 @@ on:
         required: false
         type: string
         default: '3.11'
-      dry-run:
+      dry_run:
         required: false
         type: boolean
         default: true
@@ -72,7 +72,7 @@ jobs:
           path: ./package
 
       - name: Preflight — verify Azure secrets are present
-        if: ${{ !inputs.dry-run }}
+        if: ${{ !inputs.dry_run }}
         env:
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -88,13 +88,13 @@ jobs:
               echo ""
               for s in "${missing[@]}"; do echo "- \`$s\`"; done
               echo ""
-              echo "Configure these as Environment secrets on the \`${{ inputs.environment }}\` Environment, or re-run with \`dry-run: true\`."
+              echo "Configure these as Environment secrets on the \`${{ inputs.environment }}\` Environment, or re-run with \`dry_run: true\`."
             } >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
 
       - name: Azure Login (OIDC)
-        if: ${{ !inputs.dry-run }}
+        if: ${{ !inputs.dry_run }}
         uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -102,7 +102,7 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy Azure Functions
-        if: ${{ !inputs.dry-run }}
+        if: ${{ !inputs.dry_run }}
         uses: Azure/functions-action@v1
         with:
           app-name: ${{ inputs.function-app-name }}
@@ -111,7 +111,7 @@ jobs:
           enable-oryx-build: true
 
       - name: Dry-run summary (no deploy performed)
-        if: ${{ inputs.dry-run }}
+        if: ${{ inputs.dry_run }}
         run: |
           {
             echo "## 🟡 Dry-run completed — no Azure resources were modified"
