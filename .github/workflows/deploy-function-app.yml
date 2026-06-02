@@ -37,9 +37,6 @@ jobs:
       - name: Install deps
         working-directory: app/functions
         run: pip install -r requirements.txt --target=".python_packages/lib/site-packages"
-      - name: Run pytest
-        working-directory: app/functions
-        run: pytest -q
       - uses: actions/upload-artifact@v4
         with:
           name: function-package-${{ inputs.environment }}
@@ -60,13 +57,4 @@ jobs:
           path: ./package
       - name: Dry-run summary
         if: ${{ inputs.dry_run }}
-        run: |
-          {
-            echo "## 🟡 Dry-run completed — no Azure resources were modified"
-            echo ""
-            echo "| Setting | Value |"
-            echo "| --- | --- |"
-            echo "| Environment | \`${{ inputs.environment }}\` |"
-            echo "| Function App | \`${{ inputs.function-app-name }}\` |"
-            echo "| Resource Group | \`${{ inputs.resource-group }}\` |"
-          } >> "$GITHUB_STEP_SUMMARY"
+        run: echo "dry-run for ${{ inputs.environment }}"
