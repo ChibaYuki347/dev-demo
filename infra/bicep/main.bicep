@@ -14,7 +14,7 @@ param location string = 'japaneast'
 @description('Prefix for all resource names.')
 @minLength(3)
 @maxLength(8)
-param namePrefix string = 'fjdemo'
+param namePrefix string = 'devdemo'
 
 @description('Object ID of the GitHub OIDC service principal that needs Service Bus Data Receiver.')
 param githubSpObjectId string = ''

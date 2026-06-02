@@ -28,11 +28,11 @@ on:
         description: When true, build & validate only — skip the deploy step.
     secrets:
       AZURE_CLIENT_ID:
-        required: true
+        required: false
       AZURE_TENANT_ID:
-        required: true
+        required: false
       AZURE_SUBSCRIPTION_ID:
-        required: true
+        required: false
 
 permissions:
   contents: read
