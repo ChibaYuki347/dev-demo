@@ -69,11 +69,10 @@ resource func 'Microsoft.Web/sites@2024-04-01' = {
   }
 }
 
-// Storage Blob Data Owner so the Function host can use Managed Identity against the storage account.
-// d83a3a16-bf83-4fa9-9c41-3b5d3fa6e1f4 = Storage Blob Data Owner
+// Storage Blob Data Owner = b7e6dc6d-f1e8-4753-8033-0f276bb0955b
 var blobOwnerRoleId = subscriptionResourceId(
   'Microsoft.Authorization/roleDefinitions',
-  'd83a3a16-bf83-4fa9-9c41-3b5d3fa6e1f4'
+  'b7e6dc6d-f1e8-4753-8033-0f276bb0955b'
 )
 
 resource storageRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
