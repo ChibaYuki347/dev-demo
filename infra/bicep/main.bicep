@@ -53,6 +53,18 @@ module functionApp 'modules/functionapp.bicep' = {
   }
 }
 
+// Grant the Function App's runtime managed identity 'Azure Service Bus Data Receiver'
+// on the Service Bus namespace. This is separate from the GitHub deployment SP role
+// assignment inside servicebus.bicep — the runtime identity needs its own grant.
+module functionSbRole 'modules/sb-role-runtime.bicep' = {
+  scope: rg
+  name: 'func-sb-role'
+  params: {
+    serviceBusNamespaceName: serviceBus.outputs.namespaceName
+    functionAppPrincipalId: functionApp.outputs.functionAppPrincipalId
+  }
+}
+
 output resourceGroupName string = rg.name
 output serviceBusNamespace string = serviceBus.outputs.namespaceName
 output functionAppName string = functionApp.outputs.functionAppName

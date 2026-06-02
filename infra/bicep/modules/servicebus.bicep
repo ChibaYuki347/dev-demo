@@ -14,7 +14,7 @@ param location string
 param githubSpObjectId string = ''
 
 var skuMap = {
-  dev: 'Basic'
+  dev: 'Standard'  // Basic does not support topics/subscriptions
   stg: 'Standard'
   prod: 'Premium'
 }

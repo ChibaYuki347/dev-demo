@@ -27,15 +27,29 @@ jobs:
       - id: check
         env:
           ENTRA_APP_CLIENT_ID: ${{ secrets.ENTRA_APP_CLIENT_ID }}
+          ENTRA_APP_TENANT_ID: ${{ secrets.ENTRA_APP_TENANT_ID }}
           ADO_ORG: ${{ vars.ADO_ORGANIZATION }}
+          ADO_PROJECT: ${{ vars.ADO_PROJECT }}
+          GH_PAT: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
         run: |
-          if [ -n "$ENTRA_APP_CLIENT_ID" ] && [ -n "$ADO_ORG" ]; then
+          missing=()
+          [ -z "$ENTRA_APP_CLIENT_ID" ] && missing+=("secret:ENTRA_APP_CLIENT_ID")
+          [ -z "$ENTRA_APP_TENANT_ID" ] && missing+=("secret:ENTRA_APP_TENANT_ID")
+          [ -z "$ADO_ORG" ]              && missing+=("var:ADO_ORGANIZATION")
+          [ -z "$ADO_PROJECT" ]          && missing+=("var:ADO_PROJECT")
+          [ -z "$GH_PAT" ]               && missing+=("secret:GH_PERSONAL_ACCESS_TOKEN")
+          if [ ${#missing[@]} -eq 0 ]; then
             echo "can_run=true" >> "$GITHUB_OUTPUT"
           else
             echo "can_run=false" >> "$GITHUB_OUTPUT"
-            echo "## ⚠️ Sync skipped — Entra ID / ADO not configured" >> "$GITHUB_STEP_SUMMARY"
-            echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo "Set \`ENTRA_APP_CLIENT_ID\` (Secret) and \`ADO_ORGANIZATION\` (Variable) to enable. See [docs/03-spec-driven-dev.md](../../docs/03-spec-driven-dev.md)." >> "$GITHUB_STEP_SUMMARY"
+            {
+              echo "## ⚠️ Sync skipped — Entra ID / ADO not fully configured"
+              echo ""
+              echo "Missing:"
+              for s in "${missing[@]}"; do echo "- \`$s\`"; done
+              echo ""
+              echo "See [docs/03-spec-driven-dev.md](../../docs/03-spec-driven-dev.md). Note: this workflow's Federated Credential subject is \`repo:<org>/<repo>:ref:refs/heads/main\` (not \`:environment:...\`) because there is no \`environment:\` on this job."
+            } >> "$GITHUB_STEP_SUMMARY"
           fi
 
   sync:

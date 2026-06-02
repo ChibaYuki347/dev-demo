@@ -12,9 +12,9 @@ body:
   - type: input
     id: ab_id
     attributes:
-      label: Azure Boards Work Item ID
-      description: Numeric ID. Will be expanded into `AB#<id>` for state transitions.
-      placeholder: "1234"
+      label: Azure Boards Work Item reference
+      description: "Enter the full reference, e.g. `AB#1234`. The `AB#` prefix is required for Azure Boards to detect the link."
+      placeholder: "AB#1234"
     validations:
       required: false
 

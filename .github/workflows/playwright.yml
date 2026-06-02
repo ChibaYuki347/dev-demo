@@ -1,9 +1,13 @@
-# playwright.yml — sharded Playwright E2E with merge-reports + PR comment.
+# playwright.yml — sharded Playwright E2E with merge-reports.
 # Demonstrates Topic ① from the research report (no real cloud required).
 #
 # - blob reporter per shard
 # - merge-reports into a single HTML + GitHub annotations
-# - PR comment via daun/playwright-report-summary (only when run by a PR)
+# - Merged HTML report uploaded as an artifact (single source of truth)
+#
+# PR-comment integrations (daun/playwright-report-summary, ctrf-io/github-test-reporter)
+# are deliberately NOT wired up to keep this workflow minimal; see docs/01-playwright-e2e.md
+# for how to add them.
 
 name: Playwright E2E
 
@@ -16,7 +20,6 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write   # for daun/playwright-report-summary to comment
   checks: write
 
 concurrency:
