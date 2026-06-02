@@ -6,3 +6,4 @@ jobs:
     uses: ./.github/workflows/deploy-function-app.yml
     with:
       environment: development
+      function-app-name: devdemo-func-dev
