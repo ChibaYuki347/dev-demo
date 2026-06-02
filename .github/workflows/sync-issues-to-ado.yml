@@ -73,7 +73,7 @@ jobs:
           echo "::add-mask::$TOKEN"
           echo "ado_token=$TOKEN" >> "$GITHUB_OUTPUT"
 
-      - uses: danhellem/github-actions-issue-to-work-item@master
+      - uses: danhellem/github-actions-issue-to-work-item@v2.5
         env:
           ado_token: ${{ steps.token.outputs.ado_token }}
           github_token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
