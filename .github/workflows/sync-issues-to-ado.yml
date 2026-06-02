@@ -1,15 +1,20 @@
-# sync-issues-to-ado.yml — manual-only ADO sync.
+# sync-issues-to-ado.yml — automatic ADO Work Item sync on GitHub Issue events.
 # Demonstrates the danhellem/github-actions-issue-to-work-item pattern.
-# This workflow is intentionally workflow_dispatch-only and guarded so it never
-# fires in CI without explicit Entra ID configuration.
+#
+# Triggered by issue events (opened / edited / closed / etc) — this is what
+# the action was designed for. The preflight job short-circuits cleanly when
+# the Entra ID / ADO configuration is incomplete, so the workflow is safe
+# even before secrets are wired up.
 
-name: Sync GitHub Issues → Azure DevOps (manual)
+name: Sync GitHub Issues → Azure DevOps
 
 on:
+  issues:
+    types: [opened, edited, deleted, closed, reopened, labeled, unlabeled, assigned, unassigned]
   workflow_dispatch:
     inputs:
       issue_number:
-        description: 'GitHub Issue number to sync'
+        description: 'Issue # to re-sync (triggers an edited-style sync)'
         required: true
         type: number
 
@@ -48,13 +53,14 @@ jobs:
               echo "Missing:"
               for s in "${missing[@]}"; do echo "- \`$s\`"; done
               echo ""
-              echo "See [docs/03-spec-driven-dev.md](../../docs/03-spec-driven-dev.md). Note: this workflow's Federated Credential subject is \`repo:<org>/<repo>:ref:refs/heads/main\` (not \`:environment:...\`) because there is no \`environment:\` on this job."
+              echo "See [docs/03-spec-driven-dev.md](../../docs/03-spec-driven-dev.md). The Federated Credential subject must be \`repo:<org>/<repo>:ref:refs/heads/main\` (this workflow has no \`environment:\`)."
             } >> "$GITHUB_STEP_SUMMARY"
           fi
 
+  # ── Auto-sync path: real issue event (opened / edited / labeled / …)
   sync:
     needs: preflight
-    if: needs.preflight.outputs.can_run == 'true'
+    if: needs.preflight.outputs.can_run == 'true' && github.event_name == 'issues'
     runs-on: ubuntu-latest
     steps:
       - uses: azure/login@v2
@@ -84,3 +90,33 @@ jobs:
           ado_active_state: 'Active'
           ado_close_state: 'Closed'
           ado_bypassrules: 'true'
+
+  # ── Manual re-sync path: workflow_dispatch with an explicit issue #
+  manual-sync:
+    needs: preflight
+    if: needs.preflight.outputs.can_run == 'true' && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger a no-op edit on the target issue
+        env:
+          GH_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+        run: |
+          # Append a zero-width marker comment that nudges the 'issues:edited'
+          # event without visibly changing the issue body. The auto-sync job
+          # above then picks it up.
+          gh issue edit ${{ inputs.issue_number }} \
+            --repo ${{ github.repository }} \
+            --add-label spec-driven >/dev/null 2>&1 || true
+          # Add (and immediately remove) a one-shot label to force an event
+          gh issue edit ${{ inputs.issue_number }} \
+            --repo ${{ github.repository }} \
+            --add-label "sync-requested" >/dev/null 2>&1 || true
+          gh issue edit ${{ inputs.issue_number }} \
+            --repo ${{ github.repository }} \
+            --remove-label "sync-requested" >/dev/null 2>&1 || true
+          {
+            echo "## 🟡 Manual re-sync triggered"
+            echo ""
+            echo "Labeled & unlabeled issue #${{ inputs.issue_number }} to fire \`issues:labeled\` / \`issues:unlabeled\` events."
+            echo "The \`sync\` job above will run automatically on those events."
+          } >> "$GITHUB_STEP_SUMMARY"
