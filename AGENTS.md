@@ -26,9 +26,13 @@ Do not introduce Salesforce or Power Platform — they are out of demo scope.
 
 ## Files to read first when joining the repo
 
-1. `README.md` — entrypoint
-2. `docs/00-tour-30min.md` — what the demo flow looks like
-3. `docs/architecture.md` — Mermaid diagrams
+1. `README.md` — entrypoint (English; Japanese mirror at `README.ja.md`)
+2. `docs/en/00-tour-30min.md` — what the demo flow looks like (Japanese: `docs/ja/00-tour-30min.md`)
+3. `docs/en/architecture.md` — Mermaid diagrams (Japanese: `docs/ja/architecture.md`)
 4. `specs/001-login-feature/spec.md` — example of spec-driven artifacts (Gherkin)
-5. `.github/copilot-instructions.md` — full conventions (this is the source of truth)
+5. `.github/copilot-instructions.md` — full conventions (this is the source of truth; English-only because read by AI)
 6. `.github/workflows/ci.yml` — how the always-green CI is wired
+
+## Documentation language convention
+
+Narrative docs in `docs/` are split into `docs/en/` (English) and `docs/ja/` (Japanese). Keep each language pure inside its directory. AI context files (`AGENTS.md`, `.github/copilot-instructions.md`, `.github/instructions/*.instructions.md`) are English-only.

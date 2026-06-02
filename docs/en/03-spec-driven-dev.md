@@ -1,6 +1,8 @@
-# ③ Spec-driven development (Azure Boards × GitHub × spec-kit) / 仕様駆動開発
+# ③ Spec-driven development (Azure Boards × GitHub × spec-kit)
 
-## The 7-step flow / 7 ステップフロー
+> 🇯🇵 Japanese version: [`docs/ja/03-spec-driven-dev.md`](../ja/03-spec-driven-dev.md)
+
+## The 7-step flow
 
 ```mermaid
 sequenceDiagram
@@ -19,18 +21,18 @@ sequenceDiagram
     PdM->>Copilot: 4. "Create PR with Copilot"<br/>from Work Item
     Copilot->>Repo: 5. Read specs/, .github/copilot-instructions.md<br/>implement code + tests + docs
     Repo->>CI: 6. push → playwright.yml + ci.yml<br/>green checks + PR comment
-    CI->>Done: 7. merge "Fixes AB#XXXX" → Work Item Resolved/Closed
+    CI->>Done: 7. merge "Fixes AB#XXXX" → Work Item Resolved / Closed
 ```
 
 ## What this repo demonstrates
 
-| Step | File / Mechanism |
+| Step | File or Mechanism |
 |---|---|
 | Spec format | `specs/001-login-feature/spec.md` — User Story + Gherkin AC + FR-NNN + SC-NNN + `[NEEDS CLARIFICATION]` |
 | Spec → tasks | `specs/001-login-feature/tasks.md` — `[P]` markers for parallel-safe tasks |
 | Issue template | `.github/ISSUE_TEMPLATE/user-story.yml` — same shape as the spec |
-| Boards link | `AB#<id>` syntax (any commit / PR body) — see also `.github/pull_request_template.md` |
-| ADO sync | `.github/workflows/sync-issues-to-ado.yml` — workflow_dispatch only, gated on `ENTRA_APP_CLIENT_ID` |
+| Boards link | `AB#<id>` syntax (any commit or PR body) — see also `.github/pull_request_template.md` |
+| ADO sync | `.github/workflows/sync-issues-to-ado.yml` — triggered by `issues:` events; gated on `ENTRA_APP_CLIENT_ID` |
 | Test mapping | `app/frontend/tests/e2e/login.spec.ts` — each `test()` title starts with `AC-NNN:` |
 | Conventions for AI | `.github/copilot-instructions.md` + `AGENTS.md` |
 
@@ -54,18 +56,19 @@ specify init --integration copilot
 
 The 8 slash commands are documented in `github/spec-kit` README; the artifacts they produce drop into the same `specs/<NNN>-<slug>/` layout we used.
 
-## Why is `sync-issues-to-ado.yml` `workflow_dispatch` only?
+## Why is `sync-issues-to-ado.yml` gated?
 
-Without a real Entra ID app + ADO organization configured, the danhellem action would fail and turn the CI dashboard red — exactly the smell a dev lead would call out. The `preflight` job in the workflow checks for `ENTRA_APP_CLIENT_ID` + `ADO_ORGANIZATION` and short-circuits cleanly with a Job Summary explanation if they are missing.
+Without a real Entra ID app + ADO organization configured, the danhellem action would fail and turn the CI dashboard red — exactly the smell a dev lead would call out. The `preflight` job in the workflow checks for `ENTRA_APP_CLIENT_ID` / `ENTRA_APP_TENANT_ID` / `ADO_ORGANIZATION` / `ADO_PROJECT` / `GH_PERSONAL_ACCESS_TOKEN` and short-circuits cleanly with a Job Summary explanation if any of them are missing.
 
 To enable real sync, an operator:
 
-1. Creates an Entra ID app registration; configures a Federated Credential whose `subject` is `repo:<org>/<repo>:environment:<env>`.
-2. Grants the SP **Basic** access to the Azure DevOps organization.
-3. Sets the GitHub secrets `ENTRA_APP_CLIENT_ID`, `ENTRA_APP_TENANT_ID`, `GH_PERSONAL_ACCESS_TOKEN`, and the variables `ADO_ORGANIZATION`, `ADO_PROJECT`.
-4. Optionally adds an ADO Service Hook to call `gh workflow run sync-issues-to-ado.yml --field issue_number=<n>` so the manual trigger becomes automatic.
+1. Creates an Entra ID app registration with a Federated Credential whose `subject` is `repo:<org>/<repo>:ref:refs/heads/main` (this workflow has no `environment:` context, so the Environment-scope subject does NOT apply here).
+2. Adds the SP to the Azure DevOps organization as a user with Contributors access (via the `serviceprincipalentitlements` API).
+3. Sets the GitHub repo secrets `ENTRA_APP_CLIENT_ID`, `ENTRA_APP_TENANT_ID`, `GH_PERSONAL_ACCESS_TOKEN`, and the variables `ADO_ORGANIZATION`, `ADO_PROJECT`. Override `ADO_WORK_ITEM_TYPE` / `ADO_NEW_STATE` / `ADO_ACTIVE_STATE` / `ADO_CLOSE_STATE` if your project does not use the Scrum process.
 
-## Anti-patterns called out / 避けるべき書き方
+The workflow then runs automatically on every issue event (opened / edited / labeled / closed). For a manual re-sync, the `manual-sync` job adds and removes a label to fire an `issues:labeled` event.
+
+## Anti-patterns called out
 
 | ❌ Don't | ✅ Do |
 |---|---|

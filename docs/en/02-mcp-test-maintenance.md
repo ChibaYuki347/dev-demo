@@ -1,10 +1,13 @@
-# ② MCP for continuous test maintenance / MCP によるテスト継続保守
+# ② MCP for continuous test maintenance
 
+> 🇯🇵 Japanese version: [`docs/ja/02-mcp-test-maintenance.md`](../ja/02-mcp-test-maintenance.md)
+>
 > If a live Copilot connection is not available in the demo VM, the **self-healing transcript** below stands on its own and can be walked through in 3 minutes.
 
 ## What is configured
 
 `.vscode/mcp.json`:
+
 ```jsonc
 {
   "servers": {
@@ -19,6 +22,7 @@
 The `--caps=testing` flag opts into the assertion / locator-generation tools (`browser_generate_locator`, `browser_verify_*`). Without it only the core navigation/click/type/snapshot tools are exposed.
 
 For Copilot CLI users, the equivalent config goes in `~/.copilot/mcp-config.json`:
+
 ```jsonc
 {
   "mcpServers": {
@@ -32,7 +36,7 @@ For Copilot CLI users, the equivalent config goes in `~/.copilot/mcp-config.json
 }
 ```
 
-## Scenario: self-healing a broken selector / セレクタの自己修復
+## Scenario: self-healing a broken selector
 
 ### Setup (the breakage)
 
@@ -44,6 +48,7 @@ await page.getByRole('button', { name: 'Sign in' }).click();
 ```
 
 CI fails:
+
 ```
 Error: locator.click: Test ended.
 Locator: getByRole('button', { name: 'Sign in' })
@@ -54,6 +59,7 @@ Received: <element(s) not found>
 ### Step 1 — Ask Copilot Chat with both MCP servers enabled
 
 Prompt (paste verbatim into Copilot Chat):
+
 ```
 The Playwright test app/frontend/tests/e2e/login.spec.ts is failing on
 "AC-001: valid credentials redirect to dashboard". Use the playwright MCP to
@@ -68,7 +74,7 @@ getByRole pattern. Show me a unified diff first.
 |---|---|---|
 | 1 | `browser_navigate({ url: "http://127.0.0.1:5173" })` | Page load OK |
 | 2 | `browser_snapshot()` | ARIA tree: <br/>`- form "Sign in" [ref=e3]`<br/>`  - textbox "Email" [ref=e4]`<br/>`  - textbox "Password" [ref=e6]`<br/>`  - button "Log in" [ref=e8]`  ← **note the new name** |
-| 3 | `browser_generate_locator({ target: "e8" })` | `getByRole('button', { name: 'Log in' })` |
+| 3 | `browser_generate_locator({ target: "e8" })` (requires `--caps=testing`) | `getByRole('button', { name: 'Log in' })` |
 | 4 | (Copilot reads `login.spec.ts` with the `view` tool) | source diff |
 
 ### Step 3 — Unified diff Copilot proposes
@@ -97,6 +103,7 @@ getByRole pattern. Show me a unified diff first.
 ### Step 5 — Bonus: file a PR via GitHub MCP
 
 Same chat session, follow-up prompt:
+
 ```
 Now create a PR titled "fix: update locator after UI rename" with
 "Fixes AB#1042" in the body. Branch name: fix/1042-login-button-rename.
@@ -104,16 +111,15 @@ Now create a PR titled "fix: update locator after UI rename" with
 
 The GitHub MCP server handles the `git` plumbing and PR creation via the API — no `gh` CLI needed.
 
-## Why this matters / なぜ重要か
+## Why this matters
 
-- **EN**: The old way was "the UI changed → the QA chases selectors". The new way is "the UI changed → Copilot sees the new UI → 30 seconds, one PR." The ARIA-based MCP means there's no brittle pixel-matching to maintain.
-- **JP**: 従来「UI 変更 → QA がセレクタを追いかける」だったものが「UI 変更 → Copilot が新 UI を見て → 30 秒で PR」になる。ARIA ベースなのでピクセル一致のような壊れやすい仕組みもない。
+The old way was "the UI changed → the QA chases selectors". The new way is "the UI changed → Copilot sees the new UI → 30 seconds, one PR." The ARIA-based MCP means there's no brittle pixel-matching to maintain.
 
 ## When this fails
 
-- Pages behind authentication: configure `--storage-state=./playwright/.auth/user.json` so MCP starts from a logged-in session. See `microsoft/playwright-mcp` README "Storage state".
-- Pages with canvas/charts: switch to `--caps=vision` for the coordinate-based tools (`browser_mouse_click_xy` etc.).
-- Sensitive credentials in prompts: use the `secrets` mapping in `playwright-mcp.config.json` so plain-text values never enter the LLM context.
+- **Pages behind authentication**: configure `--storage-state=./playwright/.auth/user.json` so MCP starts from a logged-in session. See `microsoft/playwright-mcp` README "Storage state".
+- **Pages with canvas / charts**: switch to `--caps=vision` for the coordinate-based tools (`browser_mouse_click_xy` etc.).
+- **Sensitive credentials in prompts**: use the `secrets` mapping in `playwright-mcp.config.json` so plain-text values never enter the LLM context.
 
 ## Live-demo fallback
 

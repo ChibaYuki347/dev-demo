@@ -3,7 +3,7 @@ import { defineConfig, devices } from '@playwright/test';
 /**
  * Playwright config for the dev-demo frontend.
  *
- * Key design choices (see docs/01-playwright-e2e.md):
+ * Key design choices (see docs/en/01-playwright-e2e.md or docs/ja/01-playwright-e2e.md):
  *  - `webServer` makes `npx playwright test` self-contained — no manual `npm run dev` needed
  *  - `reporter` switches between `blob` in CI (so shards can be merged) and `html` locally
  *  - `forbidOnly` fails the build if someone commits `test.only`

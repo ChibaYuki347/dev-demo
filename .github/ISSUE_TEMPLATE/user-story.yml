@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         > **Tip**: link this Issue to its Azure Boards Work Item by writing `AB#<id>` in the body below.
-        > See [docs/03-spec-driven-dev.md](../../docs/03-spec-driven-dev.md) for the full flow.
+        > See [docs/en/03-spec-driven-dev.md](../../docs/en/03-spec-driven-dev.md) (日本語版: [docs/ja/03-spec-driven-dev.md](../../docs/ja/03-spec-driven-dev.md)) for the full flow.
 
   - type: input
     id: ab_id

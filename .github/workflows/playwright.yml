@@ -6,7 +6,7 @@
 # - Merged HTML report uploaded as an artifact (single source of truth)
 #
 # PR-comment integrations (daun/playwright-report-summary, ctrf-io/github-test-reporter)
-# are deliberately NOT wired up to keep this workflow minimal; see docs/01-playwright-e2e.md
+# are deliberately NOT wired up to keep this workflow minimal; see docs/en/01-playwright-e2e.md
 # for how to add them.
 
 name: Playwright E2E

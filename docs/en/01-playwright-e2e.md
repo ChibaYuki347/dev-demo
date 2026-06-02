@@ -1,8 +1,11 @@
-# ① Playwright E2E with GitHub Actions / Playwright + GitHub Actions
+# ① Playwright E2E with GitHub Actions
+
+> 🇯🇵 Japanese version: [`docs/ja/01-playwright-e2e.md`](../ja/01-playwright-e2e.md)
 
 ## Why this pattern
 
 The research report concluded that:
+
 - `microsoft/playwright-github-action` is deprecated — use `npx playwright install --with-deps` directly.
 - Sharded parallelism + `blob` reporter + `merge-reports` is the official scaling pattern.
 - `if: ${{ !cancelled() }}` is safer than `if: always()` because it still uploads artifacts on test failure but skips on manual cancel.
@@ -18,7 +21,7 @@ This demo implements all three.
 | `app/frontend/tests/e2e/dashboard.spec.ts` | minimal smoke test |
 | `.github/workflows/playwright.yml` | sharded matrix + merge job + GitHub annotations + HTML artifact |
 
-## Local run / ローカル実行
+## Local run
 
 ```bash
 ./scripts/run-playwright.sh
@@ -50,7 +53,7 @@ Key points to call out during the demo:
 
 | Feature | Reason |
 |---|---|
-| Multiple browser projects (Firefox / WebKit) | Demo speed; easy to add — just uncomment in `playwright.config.ts` |
+| Multiple browser projects (Firefox, WebKit) | Demo speed; easy to add — just uncomment in `playwright.config.ts` |
 | `daun/playwright-report-summary@v4` PR comment | Pinned `node24` action; works in real PRs but adds noise on `push` events. Add when needed. |
 | `ctrf-io/github-test-reporter@v1` | Heavier, requires CTRF JSON reporter; great for QA dashboards but overkill for this demo |
 | `actions/cache@v4` for Playwright browsers | [Officially discouraged](https://playwright.dev/docs/ci#caching-browsers) — restore time ≈ download time and Linux OS deps cannot be cached |

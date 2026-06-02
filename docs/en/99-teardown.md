@@ -1,9 +1,11 @@
-# Tear-down — どうやってデモを片付けるか / How to clean up after the demo
+# Tear-down — how to clean up after the demo
 
+> 🇯🇵 Japanese version: [`docs/ja/99-teardown.md`](../ja/99-teardown.md)
+>
 > The end-to-end demo provisioned real Azure + Entra ID + ADO resources.
 > This page lists every command to remove them so nothing keeps billing or leaking access.
 
-## Quick check — what was created / 何ができたか
+## Quick check — what was created
 
 | Layer | What | Where |
 |---|---|---|
@@ -12,7 +14,7 @@
 | GitHub repo secrets | `ENTRA_APP_CLIENT_ID`, `ENTRA_APP_TENANT_ID`, `GH_PERSONAL_ACCESS_TOKEN` | repo Settings → Secrets |
 | GitHub repo variables | `ADO_ORGANIZATION`, `ADO_PROJECT` | repo Settings → Variables |
 | Entra ID app | `github-dev-demo-development` (with 2 Federated Credentials) | Entra ID → App registrations |
-| Azure RBAC | `Contributor`, `User Access Administrator`, `Storage Blob Data Contributor` on the SP | Subscription / Storage scope |
+| Azure RBAC | `Contributor`, `User Access Administrator`, `Storage Blob Data Contributor` on the SP | Subscription and Storage scope |
 | Azure resources | Resource group `devdemo-rg-dev` (Service Bus, Function App, Storage, Plan, Role assignments) | Azure portal → `devdemo-rg-dev` |
 | Azure DevOps | Work Item #340 in SmartHotelDemo + SP added as ADO user with Contributors | `https://dev.azure.com/contosodemo42425/SmartHotelDemo` |
 
@@ -34,7 +36,7 @@ SUB_ID="68575d55-f60d-4d89-a32b-ad90af38faa6"
 
 az role assignment list --assignee "$SP_OBJ_ID" --scope "/subscriptions/$SUB_ID" \
   --query '[].{role:roleDefinitionName, scope:scope, id:id}' -o table
-# Remove them by GUID
+# Remove them
 az role assignment delete --assignee "$SP_OBJ_ID" --scope "/subscriptions/$SUB_ID" \
   --role "Contributor"
 az role assignment delete --assignee "$SP_OBJ_ID" --scope "/subscriptions/$SUB_ID" \
@@ -76,7 +78,7 @@ Then in the ADO portal: SmartHotelDemo → Boards → Work Items → delete Work
 ```bash
 REPO="ChibaYuki347/dev-demo"
 
-# Environment secrets / Environment itself
+# Environment secrets + the Environment itself
 gh api --method DELETE "repos/$REPO/environments/development"
 
 # Repo secrets

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # setup-oidc.sh — REFERENCE script. Do NOT run during the demo.
 # Creates an Entra ID app registration + service principal + federated credentials
-# for the GitHub → Azure OIDC flow described in docs/05-azure-cd.md.
+# for the GitHub → Azure OIDC flow described in docs/en/05-azure-cd.md (日本語版: docs/ja/05-azure-cd.md).
 #
 # Usage: ./scripts/setup-oidc.sh <github-org/repo> <env-name>
 

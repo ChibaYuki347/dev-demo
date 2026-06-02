@@ -14,7 +14,7 @@ This repository is a **30-minute demo** of how to combine:
 4. AI context files (this file, `AGENTS.md`, path-scoped instructions)
 5. Azure CD for Azure Functions + Service Bus over OIDC
 
-Demos that walk a client through this repo should match `docs/00-tour-30min.md`.
+Demos that walk a client through this repo should match `docs/en/00-tour-30min.md` (Japanese mirror: `docs/ja/00-tour-30min.md`).
 
 ## Architecture (one-line per component)
 
@@ -67,6 +67,12 @@ Demos that walk a client through this repo should match `docs/00-tour-30min.md`.
 - Each significant feature lives under `specs/{NNN}-{slug}/` (`spec.md` + `plan.md` + `tasks.md`).
 - Acceptance Criteria are written in **Gherkin** (`Given / When / Then`) so Copilot can translate them 1:1 into Playwright `test()` blocks.
 - `[NEEDS CLARIFICATION]` markers must be resolved before implementation begins.
+
+## Documentation language convention
+
+- Narrative docs in `docs/` are split into **`docs/en/`** (English) and **`docs/ja/`** (Japanese). Keep each language pure — do not mix EN/JA inside one file. Add a top-of-file cross-link to the other language.
+- `README.md` is English; `README.ja.md` is its Japanese mirror.
+- This file (`.github/copilot-instructions.md`), `AGENTS.md`, and `.github/instructions/*.instructions.md` are **English-only** because they are consumed by AI tools rather than read on a tour.
 
 ## Things Copilot should NOT do here
 

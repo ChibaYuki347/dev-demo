@@ -53,7 +53,7 @@ jobs:
               echo "Missing:"
               for s in "${missing[@]}"; do echo "- \`$s\`"; done
               echo ""
-              echo "See [docs/03-spec-driven-dev.md](../../docs/03-spec-driven-dev.md). The Federated Credential subject must be \`repo:<org>/<repo>:ref:refs/heads/main\` (this workflow has no \`environment:\`)."
+              echo "See [docs/en/03-spec-driven-dev.md](../../docs/en/03-spec-driven-dev.md) or [docs/ja/03-spec-driven-dev.md](../../docs/ja/03-spec-driven-dev.md). The Federated Credential subject must be \`repo:<org>/<repo>:ref:refs/heads/main\` (this workflow has no \`environment:\`)."
             } >> "$GITHUB_STEP_SUMMARY"
           fi
 
