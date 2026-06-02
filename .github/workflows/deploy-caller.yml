@@ -29,10 +29,7 @@ jobs:
     uses: ./.github/workflows/deploy-function-app.yml
     with:
       environment: ${{ inputs.environment }}
-      function-app-name: fjdemo-func-${{ inputs.environment == 'development' && 'dev' || inputs.environment == 'staging' && 'stg' || 'prod' }}
-      resource-group: fjdemo-rg-${{ inputs.environment == 'development' && 'dev' || inputs.environment == 'staging' && 'stg' || 'prod' }}
+      function-app-name: devdemo-func-${{ inputs.environment == 'development' && 'dev' || inputs.environment == 'staging' && 'stg' || 'prod' }}
+      resource-group: devdemo-rg-${{ inputs.environment == 'development' && 'dev' || inputs.environment == 'staging' && 'stg' || 'prod' }}
       dry-run: ${{ inputs.dry_run }}
-    secrets:
-      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    secrets: inherit
