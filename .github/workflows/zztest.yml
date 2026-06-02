@@ -5,4 +5,4 @@ jobs:
   hello:
     uses: ./.github/workflows/zzreusable.yml
     with:
-      msg: hello
+      envname: development
