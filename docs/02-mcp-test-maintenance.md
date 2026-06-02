@@ -8,13 +8,15 @@
 ```jsonc
 {
   "servers": {
-    "playwright": { "command": "npx", "args": ["@playwright/mcp@latest"] },
+    "playwright": { "command": "npx", "args": ["@playwright/mcp@latest", "--caps=testing"] },
     "github":     { "type": "http", "url": "https://api.githubcopilot.com/mcp/" }
   }
 }
 ```
 
 `@playwright/mcp` returns the page's **ARIA accessibility tree** (not pixel coordinates), so the LLM picks elements deterministically by `role` + `name` — the same way our Playwright locator policy (`getByRole`, `getByLabel`) works.
+
+The `--caps=testing` flag opts into the assertion / locator-generation tools (`browser_generate_locator`, `browser_verify_*`). Without it only the core navigation/click/type/snapshot tools are exposed.
 
 For Copilot CLI users, the equivalent config goes in `~/.copilot/mcp-config.json`:
 ```jsonc

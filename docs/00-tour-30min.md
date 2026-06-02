@@ -36,13 +36,13 @@ Key talking point / 要点:
 ```bash
 ./scripts/run-playwright.sh
 ```
-Expected: Vite starts automatically (thanks to `webServer:` in `playwright.config.ts`), Chromium runs 4 tests (AC-001/002/003 + dashboard), HTML report opens in `app/frontend/playwright-report/`.
+Expected: Vite starts automatically (thanks to `webServer:` in `playwright.config.ts`), Chromium runs 4 tests (AC-001/002/003 + dashboard), HTML report is written to `app/frontend/playwright-report/` (open with `npx playwright show-report` from that directory).
 
 **Then open `.github/workflows/playwright.yml`** and call out:
 - `strategy.matrix.shardIndex: [1, 2]` — shard parallelism
 - `reporter: blob` in `playwright.config.ts` (CI branch) + `merge-reports --reporter html,github` job → single HTML report
 - `if: ${{ !cancelled() }}` instead of `if: always()` — safer pattern (artifacts upload even on test failure, but not on manual cancel)
-- `permissions: { pull-requests: write, checks: write }` — minimum needed to comment
+- `permissions:` set to least-privilege (`contents: read` + `checks: write`)
 
 **Talking point**: this is the exact pattern from the research report — official `microsoft/playwright-github-action` is deprecated; `npx playwright install --with-deps` is the only sanctioned approach now.
 

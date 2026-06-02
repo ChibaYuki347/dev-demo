@@ -1,8 +1,11 @@
 # deploy-caller.yml — caller for the reusable deploy-function-app.yml.
 # Manual-only (workflow_dispatch). Defaults to dry-run so an accidental click
 # does not touch a real Azure tenant.
-# Gated on AZURE_CLIENT_ID presence so it short-circuits cleanly in a clone
-# of this repo that has no Azure config yet.
+#
+# Note: the preflight that validates AZURE_CLIENT_ID lives INSIDE the reusable
+# workflow's deploy job, because Environment secrets are only visible to a job
+# with `environment:` set. Checking them from a no-environment job would
+# always fail (the secret would appear empty even if configured correctly).
 
 name: Deploy Function App (manual)
 
@@ -22,27 +25,7 @@ on:
         type: boolean
 
 jobs:
-  preflight:
-    runs-on: ubuntu-latest
-    outputs:
-      can_deploy: ${{ steps.check.outputs.can_deploy }}
-    steps:
-      - id: check
-        env:
-          CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        run: |
-          if [ -n "$CLIENT_ID" ]; then
-            echo "can_deploy=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "can_deploy=false" >> "$GITHUB_OUTPUT"
-            echo "## ⚠️ Skipping deploy — \`AZURE_CLIENT_ID\` secret is empty" >> "$GITHUB_STEP_SUMMARY"
-            echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo "Configure the Federated Credential and add \`AZURE_CLIENT_ID\`, \`AZURE_TENANT_ID\`, \`AZURE_SUBSCRIPTION_ID\` to the \`${{ inputs.environment }}\` Environment to enable real deploys." >> "$GITHUB_STEP_SUMMARY"
-          fi
-
   deploy:
-    needs: preflight
-    if: needs.preflight.outputs.can_deploy == 'true'
     uses: ./.github/workflows/deploy-function-app.yml
     with:
       environment: ${{ inputs.environment }}
