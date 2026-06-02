@@ -14,7 +14,7 @@ param location string
 @description('Service Bus namespace name (input from servicebus module).')
 param serviceBusNamespaceName string
 
-var storageName = toLower('${namePrefix}st${environment}${uniqueString(resourceGroup().id)}')
+var storageName = toLower('${namePrefix}${environment}${uniqueString(resourceGroup().id)}')
 var planName = '${namePrefix}-plan-${environment}'
 var funcName = '${namePrefix}-func-${environment}'
 
