@@ -1,11 +1,6 @@
 # deploy-caller.yml — caller for the reusable deploy-function-app.yml.
 # Manual-only (workflow_dispatch). Defaults to dry-run so an accidental click
 # does not touch a real Azure tenant.
-#
-# Note: the preflight that validates AZURE_CLIENT_ID lives INSIDE the reusable
-# workflow's deploy job, because Environment secrets are only visible to a job
-# with `environment:` set. Checking them from a no-environment job would
-# always fail (the secret would appear empty even if configured correctly).
 
 name: Deploy Function App (manual)
 
@@ -24,12 +19,31 @@ on:
         default: true
         type: boolean
 
+# Map the environment choice to the short resource-name suffix used in Bicep.
 jobs:
+  prep:
+    runs-on: ubuntu-latest
+    outputs:
+      env_short: ${{ steps.map.outputs.short }}
+    steps:
+      - id: map
+        env:
+          ENV: ${{ inputs.environment }}
+        run: |
+          case "$ENV" in
+            development) short=dev ;;
+            staging)     short=stg ;;
+            production)  short=prod ;;
+            *) echo "unknown env: $ENV"; exit 1 ;;
+          esac
+          echo "short=$short" >> "$GITHUB_OUTPUT"
+
   deploy:
+    needs: prep
     uses: ./.github/workflows/deploy-function-app.yml
     with:
       environment: ${{ inputs.environment }}
-      function-app-name: devdemo-func-${{ inputs.environment == 'development' && 'dev' || inputs.environment == 'staging' && 'stg' || 'prod' }}
-      resource-group: devdemo-rg-${{ inputs.environment == 'development' && 'dev' || inputs.environment == 'staging' && 'stg' || 'prod' }}
+      function-app-name: devdemo-func-${{ needs.prep.outputs.env_short }}
+      resource-group: devdemo-rg-${{ needs.prep.outputs.env_short }}
       dry_run: ${{ inputs.dry_run }}
     secrets: inherit
