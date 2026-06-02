@@ -7,3 +7,5 @@ jobs:
     with:
       environment: development
       function-app-name: devdemo-func-dev
+      resource-group: devdemo-rg-dev
+      dry_run: true
