@@ -9,20 +9,57 @@ on:
       function-app-name:
         required: true
         type: string
+      resource-group:
+        required: true
+        type: string
+      python-version:
+        required: false
+        type: string
+        default: '3.11'
       dry_run:
         required: false
         type: boolean
         default: true
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/functions
     steps:
-      - run: echo "build dry=${{ inputs.dry_run }}"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+          cache: 'pip'
+          cache-dependency-path: app/functions/requirements.txt
+      - run: pip install -r requirements.txt --target=".python_packages/lib/site-packages"
+      - run: pytest -q
+      - uses: actions/upload-artifact@v4
+        with:
+          name: function-package-${{ inputs.environment }}
+          path: app/functions
+          retention-days: 1
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
+    permissions:
+      id-token: write
+      contents: read
     steps:
-      - run: echo "deploy env=${{ inputs.environment }} app=${{ inputs.function-app-name }} dry=${{ inputs.dry_run }}"
+      - uses: actions/download-artifact@v4
+        with:
+          name: function-package-${{ inputs.environment }}
+          path: ./package
+      - name: Dry-run summary
+        if: ${{ inputs.dry_run }}
+        run: |
+          echo "## 🟡 Dry-run completed" >> "$GITHUB_STEP_SUMMARY"
+          echo "- env: ${{ inputs.environment }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- app: ${{ inputs.function-app-name }}" >> "$GITHUB_STEP_SUMMARY"
