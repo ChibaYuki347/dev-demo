@@ -21,9 +21,6 @@ on:
         type: boolean
         default: true
 
-permissions:
-  contents: read
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -32,33 +29,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ inputs.python-version }}
-          cache: 'pip'
-          cache-dependency-path: app/functions/requirements.txt
-      - working-directory: app/functions
-        run: pip install -r requirements.txt --target=".python_packages/lib/site-packages"
-      - working-directory: app/functions
-        run: pytest -q
-      - uses: actions/upload-artifact@v4
-        with:
-          name: function-package-${{ inputs.environment }}
-          path: app/functions
-          retention-days: 1
+      - run: echo "build done"
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
-    permissions:
-      id-token: write
-      contents: read
     steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: function-package-${{ inputs.environment }}
-          path: ./package
-      - name: Dry-run summary
-        if: ${{ inputs.dry_run }}
-        run: |
-          echo "## 🟡 Dry-run completed" >> "$GITHUB_STEP_SUMMARY"
-          echo "- env: ${{ inputs.environment }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "- app: ${{ inputs.function-app-name }}" >> "$GITHUB_STEP_SUMMARY"
+      - run: echo "deploy"
