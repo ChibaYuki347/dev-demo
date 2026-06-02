@@ -1,49 +1,12 @@
-# deploy-caller.yml — caller for the reusable deploy-function-app.yml.
-# Manual-only (workflow_dispatch). Defaults to dry-run so an accidental click
-# does not touch a real Azure tenant.
-
-name: Deploy Function App (manual)
-
+name: Test Caller
 on:
   workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Target environment'
-        required: true
-        default: development
-        type: choice
-        options: [development, staging, production]
-      dry_run:
-        description: 'Dry-run (skip Azure login + deploy)'
-        required: true
-        default: true
-        type: boolean
-
-# Map the environment choice to the short resource-name suffix used in Bicep.
 jobs:
-  prep:
-    runs-on: ubuntu-latest
-    outputs:
-      env_short: ${{ steps.map.outputs.short }}
-    steps:
-      - id: map
-        env:
-          ENV: ${{ inputs.environment }}
-        run: |
-          case "$ENV" in
-            development) short=dev ;;
-            staging)     short=stg ;;
-            production)  short=prod ;;
-            *) echo "unknown env: $ENV"; exit 1 ;;
-          esac
-          echo "short=$short" >> "$GITHUB_OUTPUT"
-
-  deploy:
-    needs: prep
+  call:
     uses: ./.github/workflows/deploy-function-app.yml
     with:
-      environment: ${{ inputs.environment }}
-      function-app-name: devdemo-func-${{ needs.prep.outputs.env_short }}
-      resource-group: devdemo-rg-${{ needs.prep.outputs.env_short }}
-      dry_run: ${{ inputs.dry_run }}
+      environment: development
+      function-app-name: devdemo-func-dev
+      resource-group: devdemo-rg-dev
+      dry_run: true
     secrets: inherit
