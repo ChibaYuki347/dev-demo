@@ -9,10 +9,20 @@ on:
       function-app-name:
         required: true
         type: string
+      dry_run:
+        required: false
+        type: boolean
+        default: true
 
 jobs:
-  hi:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "build dry=${{ inputs.dry_run }}"
+
+  deploy:
+    needs: build
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
-      - run: echo "env=${{ inputs.environment }} app=${{ inputs.function-app-name }}"
+      - run: echo "deploy env=${{ inputs.environment }} app=${{ inputs.function-app-name }} dry=${{ inputs.dry_run }}"
