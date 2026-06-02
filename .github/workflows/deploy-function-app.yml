@@ -6,10 +6,13 @@ on:
       environment:
         required: true
         type: string
+      function-app-name:
+        required: true
+        type: string
 
 jobs:
   hi:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
-      - run: echo "env=${{ inputs.environment }}"
+      - run: echo "env=${{ inputs.environment }} app=${{ inputs.function-app-name }}"
