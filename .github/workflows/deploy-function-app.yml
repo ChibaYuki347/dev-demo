@@ -36,13 +36,16 @@ jobs:
         with:
           python-version: ${{ inputs.python-version }}
           cache: 'pip'
-          cache-dependency-path: app/functions/requirements.txt
-      - name: Install dependencies
+          cache-dependency-path: app/functions/requirements*.txt
+      - name: Install dev dependencies (system install for tests)
         working-directory: app/functions
-        run: pip install -r requirements.txt --target=".python_packages/lib/site-packages"
+        run: pip install -r requirements.txt
       - name: Run pytest
         working-directory: app/functions
         run: pytest -q
+      - name: Install runtime dependencies into deploy package dir
+        working-directory: app/functions
+        run: pip install -r requirements-runtime.txt --target=".python_packages/lib/site-packages"
       - uses: actions/upload-artifact@v4
         with:
           name: function-package-${{ inputs.environment }}

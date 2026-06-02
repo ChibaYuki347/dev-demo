@@ -1,8 +1,9 @@
-# Runtime dependencies for the demo Function.
-# Pin versions for reproducibility.
-azure-functions==1.21.3
+# Dev-time dependencies — installed normally into the system Python for pytest.
+# Runtime-only deps live in requirements-runtime.txt and are installed with
+# `pip install --target=".python_packages/lib/site-packages"` to ride along
+# with the deploy package.
 
-# Test-time deps — installed in the same file for the demo. In production they
-# would live in requirements-dev.txt.
+-r requirements-runtime.txt
 pytest==8.3.4
 pytest-cov==6.0.0
+
