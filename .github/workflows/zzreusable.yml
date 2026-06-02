@@ -2,11 +2,12 @@ name: ZZ Reusable
 on:
   workflow_call:
     inputs:
-      msg:
+      envname:
         type: string
         required: true
 jobs:
   hi:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.envname }}
     steps:
-      - run: echo "got msg=${{ inputs.msg }}"
+      - run: echo "env=${{ inputs.envname }}"
