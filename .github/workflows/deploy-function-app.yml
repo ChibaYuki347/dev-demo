@@ -1,3 +1,7 @@
+# deploy-function-app.yml — REUSABLE workflow.
+# Called by deploy-caller.yml (or other repos via uses:).
+# Has no trigger of its own → cannot run accidentally.
+
 name: '[Reusable] Deploy Azure Function App'
 
 on:
@@ -6,6 +10,7 @@ on:
       environment:
         required: true
         type: string
+        description: GitHub Environment name (development | staging | production)
       function-app-name:
         required: true
         type: string
@@ -20,6 +25,7 @@ on:
         required: false
         type: boolean
         default: true
+        description: When true, build & validate only — skip the deploy step.
 
 jobs:
   build:
@@ -31,9 +37,12 @@ jobs:
           python-version: ${{ inputs.python-version }}
           cache: 'pip'
           cache-dependency-path: app/functions/requirements.txt
-      - name: Install deps
+      - name: Install dependencies
         working-directory: app/functions
         run: pip install -r requirements.txt --target=".python_packages/lib/site-packages"
+      - name: Run pytest
+        working-directory: app/functions
+        run: pytest -q
       - uses: actions/upload-artifact@v4
         with:
           name: function-package-${{ inputs.environment }}
@@ -44,11 +53,70 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
+    # NOTE: 'id-token: write' here is only honored if the CALLER's job also
+    # grants it. See deploy-caller.yml — the caller's deploy job declares
+    # the same permissions. Without that, GitHub rejects the workflow at
+    # startup with a workflow-file-issue.
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - uses: actions/download-artifact@v4
         with:
           name: function-package-${{ inputs.environment }}
           path: ./package
-      - name: Dry-run summary
+
+      - name: Preflight — verify Azure secrets are present
+        if: ${{ !inputs.dry_run }}
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        run: |
+          missing=()
+          [ -z "$AZURE_CLIENT_ID" ]       && missing+=("AZURE_CLIENT_ID")
+          [ -z "$AZURE_TENANT_ID" ]       && missing+=("AZURE_TENANT_ID")
+          [ -z "$AZURE_SUBSCRIPTION_ID" ] && missing+=("AZURE_SUBSCRIPTION_ID")
+          if [ ${#missing[@]} -gt 0 ]; then
+            {
+              echo "## ❌ Cannot deploy — missing Environment secret(s)"
+              echo ""
+              for s in "${missing[@]}"; do echo "- \`$s\`"; done
+              echo ""
+              echo "Configure these as Environment secrets on the \`${{ inputs.environment }}\` Environment, or re-run with \`dry_run: true\`."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+      - name: Azure Login (OIDC)
+        if: ${{ !inputs.dry_run }}
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy Azure Functions
+        if: ${{ !inputs.dry_run }}
+        uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ inputs.function-app-name }}
+          package: ./package
+          scm-do-build-during-deployment: true
+          enable-oryx-build: true
+
+      - name: Dry-run summary (no deploy performed)
         if: ${{ inputs.dry_run }}
-        run: echo "dry-run for ${{ inputs.environment }}"
+        run: |
+          {
+            echo "## 🟡 Dry-run completed — no Azure resources were modified"
+            echo ""
+            echo "| Setting | Value |"
+            echo "| --- | --- |"
+            echo "| Environment | \`${{ inputs.environment }}\` |"
+            echo "| Function App | \`${{ inputs.function-app-name }}\` |"
+            echo "| Resource Group | \`${{ inputs.resource-group }}\` |"
+            echo "| Python | \`${{ inputs.python-version }}\` |"
+            echo ""
+            echo "To actually deploy, re-run with \`dry_run=false\` and configure \`AZURE_CLIENT_ID\` / \`AZURE_TENANT_ID\` / \`AZURE_SUBSCRIPTION_ID\` as Environment secrets, plus a Federated Credential whose \`subject\` matches \`repo:<org>/<repo>:environment:${{ inputs.environment }}\`."
+          } >> "$GITHUB_STEP_SUMMARY"
