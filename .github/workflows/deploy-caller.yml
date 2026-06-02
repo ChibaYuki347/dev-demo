@@ -31,5 +31,5 @@ jobs:
       environment: ${{ inputs.environment }}
       function-app-name: devdemo-func-${{ inputs.environment == 'development' && 'dev' || inputs.environment == 'staging' && 'stg' || 'prod' }}
       resource-group: devdemo-rg-${{ inputs.environment == 'development' && 'dev' || inputs.environment == 'staging' && 'stg' || 'prod' }}
-      dry-run: ${{ inputs.dry_run }}
+      dry_run: ${{ inputs.dry_run }}
     secrets: inherit
