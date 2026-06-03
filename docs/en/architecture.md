@@ -32,7 +32,7 @@ flowchart TB
     CI --> PRC
     CI -.->|workflow_dispatch only| OIDC
     OIDC -.-> AZ
-    REPO -- merge "fixes AB#" --> DONE
+    REPO -->|merge fixes AB#| DONE
 ```
 
 ## Repo layout
