@@ -6,7 +6,7 @@
 # the Entra ID / ADO configuration is incomplete, so the workflow is safe
 # even before secrets are wired up.
 
-name: Sync GitHub Issues → Azure DevOps
+name: Sync GitHub Issues → Azure DevOps (manual)
 
 on:
   issues:
@@ -15,7 +15,8 @@ on:
     inputs:
       issue_number:
         description: 'Issue # to re-sync (triggers an edited-style sync)'
-        required: true
+        required: false
+        default: 1
         type: number
 
 permissions:
@@ -101,26 +102,19 @@ jobs:
     if: needs.preflight.outputs.can_run == 'true' && github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger a no-op edit on the target issue
+      - name: Trigger an issue body edit on the target issue
         env:
           GH_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
         run: |
-          # Append a zero-width marker comment that nudges the 'issues:edited'
-          # event without visibly changing the issue body. The auto-sync job
-          # above then picks it up.
-          gh issue edit ${{ inputs.issue_number }} \
-            --repo ${{ github.repository }} \
-            --add-label spec-driven >/dev/null 2>&1 || true
-          # Add (and immediately remove) a one-shot label to force an event
-          gh issue edit ${{ inputs.issue_number }} \
-            --repo ${{ github.repository }} \
-            --add-label "sync-requested" >/dev/null 2>&1 || true
-          gh issue edit ${{ inputs.issue_number }} \
-            --repo ${{ github.repository }} \
-            --remove-label "sync-requested" >/dev/null 2>&1 || true
+          ISSUE_NUMBER="${{ inputs.issue_number || 1 }}"
+          CURRENT_BODY="$(gh issue view "$ISSUE_NUMBER" --repo "${{ github.repository }}" --json body --jq '.body // ""')"
+          UPDATED_BODY="$CURRENT_BODY"$'\n'"<!-- sync-requested:${{ github.run_id }} -->"
+          gh issue edit "$ISSUE_NUMBER" \
+            --repo "${{ github.repository }}" \
+            --body "$UPDATED_BODY"
           {
             echo "## 🟡 Manual re-sync triggered"
             echo ""
-            echo "Labeled & unlabeled issue #${{ inputs.issue_number }} to fire \`issues:labeled\` / \`issues:unlabeled\` events."
-            echo "The \`sync\` job above will run automatically on those events."
+            echo "Edited issue #$ISSUE_NUMBER to fire an \`issues:edited\` event."
+            echo "The \`sync\` job above will run automatically on that event."
           } >> "$GITHUB_STEP_SUMMARY"
